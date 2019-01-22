@@ -20,7 +20,7 @@ crypto ipsec profile DMVPM-ipsec-pol
  set transform-set DMVPN-enc-pol
 exit
 
-! ### Create Tunnel Interface:
+! ### Create Tunnel Interface via ISP1:
 interface Tunnel0
  description Point-to-Multipoint for Remote Offices
  ip address 172.16.0.2 255.255.255.0
@@ -43,9 +43,32 @@ interface Tunnel0
  no shut
 exit
 
-! ### Configure WAN interface:
+! ### Tunnel Interface via ISP2
+interface Tunnel1
+ description Point-to-Multipoint for Remote Offices
+ ip address 172.16.5.2 255.255.255.0
+ no ip redirects
+ ip mtu 1400
+ ip nhrp authentication nexT-h06
+ ip nhrp map 172.16.5.1 69.31.239.130
+ ip nhrp map multicast 69.31.239.130
+ ip nhrp nhs 172.16.5.1
+ ip nhrp network-id 1
+ ip nhrp holdtime 300
+ no ip route-cache
+ no ip mroute-cache
+ delay 1000
+ ip ospf network broadcast
+ tunnel source FastEthernet1/0
+ tunnel mode gre multipoint
+ tunnel key 0
+ tunnel protection ipsec profile DMVPM-ipsec-pol
+ no shut
+exit
+
+! ### Configure WAN interfaces:
 int fa0/0
- description RO1-WAN-to-Cloud
+ description RO1-WAN-to-ISP1
  ip address 196.116.41.142 255.255.255.252
  ip access-group 100 in
  no ip mroute-cache
@@ -54,7 +77,20 @@ int fa0/0
  no shut
 exit
 
+! ### Configure WAN interface:
+int fa1/0
+ no switchport
+ description RO1-WAN-to-ISP2
+ ip address 171.56.80.6 255.255.255.252
+ ip access-group 100 in
+ no ip mroute-cache
+ duplex full
+ speed 100
+ no shut
+exit
+
 ip route 0.0.0.0 0.0.0.0 196.116.41.141
+ip route 69.31.239.130 255.255.255.255 171.56.80.5
 
 ! ### LAN segment
 int fa0/1
