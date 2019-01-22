@@ -27,7 +27,9 @@ interface Tunnel0
  no ip redirects
  ip mtu 1400
  ip nhrp authentication nexT-h06
+ ip nhrp map 172.16.0.1 44.62.77.2
  ip nhrp map multicast 44.62.77.2
+ ip nhrp nhs 172.16.0.1
  ip nhrp network-id 1
  ip nhrp holdtime 300
  no ip route-cache
@@ -51,6 +53,13 @@ int fa0/0
  speed auto
  no shut
 exit
+
+! ### LAN segment
+int fa0/1
+ ip address 172.16.1.1 255.255.255.0
+ ip helper-address 10.1.1.15
+ no keepalives
+ ! ### keeps the interface up (for some IOS versions) since this is a LAB env
 
 router ospf 1
  network 172.16.0.0 0.0.255.255 area 1
