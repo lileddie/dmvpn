@@ -54,6 +54,8 @@ int fa0/0
  no shut
 exit
 
+ip route 0.0.0.0 0.0.0.0 196.116.41.141
+
 ! ### LAN segment
 int fa0/1
  ip address 172.16.1.1 255.255.255.0
