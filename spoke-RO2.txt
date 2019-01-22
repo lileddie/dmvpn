@@ -1,0 +1,68 @@
+! ## config template for spoke router Remote Office 1
+
+! ### Internet Security Assoc. and key policy for Phase 1 negotiation:
+crypto isakmp policy 10
+ hash md5
+ authentication pre-share
+exit
+
+! ### Pre-shared keys to connect from Remote Office locations:
+crypto isakmp key 0 DMVPN-s3cuRe-l@b address 0.0.0.0 0.0.0.0
+! ### Alternately you can define separate keys per site for additional security
+
+! ### Define encryption policy for Phase 2:
+crypto ipsec transform-set DMVPN-enc-pol esp-3des esp-md5-hmac
+exit
+
+! ### IPsec profile for GRE tunnel
+crypto ipsec profile DMVPM-ipsec-pol
+ set security-association lifetime seconds 120
+ set transform-set DMVPN-enc-pol
+exit
+
+! ### Create Tunnel Interface:
+interface Tunnel0
+ description Point-to-Multipoint for Remote Offices
+ ip address 172.16.0.3 255.255.255.0
+ no ip redirects
+ ip mtu 1400
+ ip nhrp authentication nexT-h06
+ ip nhrp map 172.16.0.1 44.62.77.2
+ ip nhrp map multicast 44.62.77.2
+ ip nhrp nhs 172.16.0.1
+ ip nhrp network-id 1
+ ip nhrp holdtime 300
+ no ip route-cache
+ no ip mroute-cache
+ delay 1000
+ ip ospf network broadcast
+ tunnel source FastEthernet0/0
+ tunnel mode gre multipoint
+ tunnel key 0
+ tunnel protection ipsec profile DMVPM-ipsec-pol
+ no shut
+exit
+
+! ### Configure WAN interface:
+int fa0/0
+ description RO1-WAN-to-Cloud
+ ip address 131.155.232.34 255.255.255.252
+ ip access-group 100 in
+ no ip mroute-cache
+ duplex auto
+ speed auto
+ no shut
+exit
+
+ip route 0.0.0.0 0.0.0.0 131.155.232.33
+
+! ### LAN segment
+int fa0/1
+ ip address 172.16.2.1 255.255.255.0
+ ip helper-address 10.1.1.15
+ no keepalives
+ ! ### keeps the interface up (for some IOS versions) since this is a LAB env
+
+router ospf 1
+ network 172.16.0.0 0.0.255.255 area 1
+ 
