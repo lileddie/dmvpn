@@ -53,7 +53,7 @@ access-list 100 deny ip any any
 
 ! ### Configure WAN interface:
 interface FastEthernet0/0
- description Spr-WAN-to-Cloud
+ description HQ1-WAN-to-ISP1
  ip address 44.62.77.2 255.255.255.252
  ip access-group 100 in
  no ip mroute-cache
