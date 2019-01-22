@@ -1,4 +1,4 @@
-!DMVPN config for head-end
+!DMVPN config for head-end Router1
 
 ! ### Internet Security Assoc. and key policy for Phase 1 negotiation:
 crypto isakmp policy 10
@@ -26,7 +26,7 @@ description Point-to-Multipoint for Remote Offices
 ip address 172.16.0.1 255.255.255.0
 no ip redirects
 ip mtu 1400
-ip nhrp authentication nexT-h06-20uting=9roto_9@ss
+ip nhrp authentication nexT-h06
 ip nhrp map multicast dynamic
 ip nhrp network-id 1
 ip nhrp holdtime 300
