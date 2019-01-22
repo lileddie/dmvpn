@@ -1,0 +1,71 @@
+!DMVPN config for head-end
+
+! ### Internet Security Assoc. and key policy for Phase 1 negotiation:
+crypto isakmp policy 10
+hash md5
+authentication pre-share
+  exit
+
+! ### Pre-shared keys for all Remote Office locations:
+crypto isakmp key 0 DMVPN-s3cuRe-l@b address 0.0.0.0 0.0.0.0
+! ### Alternately you can define 1 key per site for additional security
+
+! ### Define encryption policy for Phase 2:
+crypto ipsec transform-set DMVPN-enc-pol esp-3des esp-md5-hmac
+exit
+
+! ### IPsec profile for GRE tunnel
+crypto ipsec profile DMVPM-ipsec-pol
+set security-association lifetime seconds 120
+set transform-set DMVPN-enc-pol
+exit
+
+! ### Create Tunnel Interface:
+interface Tunnel0
+description Point-to-Multipoint for Remote Offices
+ip address 172.16.0.1 255.255.255.0
+no ip redirects
+ip mtu 1400
+ip nhrp authentication nexT-h06-20uting=9roto_9@ss
+ip nhrp map multicast dynamic
+ip nhrp network-id 1
+ip nhrp holdtime 300
+no ip route-cache
+no ip mroute-cache
+delay 1000
+ip ospf network broadcast
+tunnel source FastEthernet0/0
+tunnel mode gre multipoint
+tunnel key 0
+tunnel protection ipsec profile DMVPM-ipsec-pol
+exit
+
+! ### Disallow non-FW or DMVPN traffic:
+access-list 100 permit udp any host 44.62.77.132 eq 500
+access-list 100 premit esp any host 44.62.77.132
+access-list 100 permit gre any host 44.62.77.132
+access-list 100 permit ip any host 44.62.77.134
+access-list 100 deny ip any any
+
+! ### Configure WAN interface:
+interface FastEthernet0/0
+ description Spr-WAN-to-Cloud
+ ip address 44.62.77.2 255.255.255.252
+ ip access-group 100 in
+ no ip mroute-cache
+ duplex auto
+ speed auto
+ exit
+!
+
+! ### Firewall VLAN for Inbound/Outbound Inet Connectivity
+vlan 500
+ name FW VLAN
+exit
+
+int vlan 500
+  description Firewall and PXY VLAN
+  ip address 44.62.77.18 255.255.255.240
+  standby version 2
+  standby 10 ip 44.62.77.17
+ip route 0.0.0.0 0.0.0.0 44.62.77.133
