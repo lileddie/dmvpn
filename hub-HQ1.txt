@@ -48,6 +48,7 @@ access-list 100 deny tcp any host 44.62.77.22 eq 22
 access-list 100 deny tcp any host 44.62.77.23 eq 22
 access-list 100 permit ip any host 44.62.77.22
 access-list 100 permit ip any host 44.62.77.23
+access-list 100 permit tcp host 44.62.77.1 host 44.62.77.2 eq bgp
 access-list 100 deny ip any any
 
 ! ### Configure WAN interface:
@@ -60,9 +61,22 @@ interface FastEthernet0/0
  speed auto
  exit
 !
+
+! ### Add HQ LAN to area 0 and Remote sites to area 1
 router ospf 1
  network 172.16.0.0 0.0.255.255 area 1
  network 10.0.0.0 0.255.255.255 area 0
+exit
+
+! ### Use BGP for routing to the Internet
+router bgp 64496
+ bgp router-id 44.62.77.2
+ bgp log-neighbor-changes
+ neighbor 44.62.77.1 remote-as 64497
+ !
+ address-family ipv4
+  neighbor 44.62.77.1 activate
+ exit-address-family
 exit
 
 ! ### Firewall VLAN for Inbound/Outbound Inet Connectivity
