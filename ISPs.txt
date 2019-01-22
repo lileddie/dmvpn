@@ -1,0 +1,252 @@
+! ### Simulated ISP routers
+! Both routers are 7k with 1 PA-8E slot
+! Config for ISP1:
+
+hostname Internet-ISP1
+!
+boot-start-marker
+boot-end-marker
+!
+!
+!
+no aaa new-model
+no ip icmp rate-limit unreachable
+ip cef
+!
+!
+!
+!
+!
+!
+no ip domain lookup
+no ipv6 cef
+!
+!
+multilink bundle-name authenticated
+!
+!
+!
+!
+!
+!
+!
+!
+!
+ip tcp synwait-time 5
+! 
+!
+!
+!
+!
+!
+!
+!
+!         
+!
+!
+!
+interface FastEthernet0/0
+ no ip address
+ shutdown
+ duplex full
+!
+interface Ethernet1/0
+ ip address 44.62.77.1 255.255.255.252
+ duplex full
+!
+interface Ethernet1/1
+ no ip address
+ shutdown
+ duplex full
+!
+interface Ethernet1/2
+ no ip address
+ shutdown
+ duplex full
+!
+interface Ethernet1/3
+ ip address 196.116.41.141 255.255.255.252
+ duplex full
+!
+interface Ethernet1/4
+ ip address 131.155.232.33 255.255.255.252
+ duplex full
+!
+interface Ethernet1/5
+ ip address 169.202.22.189 255.255.255.252
+ duplex full
+!
+interface Ethernet1/6
+ ip address 155.63.14.177 255.255.255.252
+ duplex full
+!
+interface Ethernet1/7
+ no ip address
+ shutdown
+ duplex full
+!
+router bgp 64497
+ bgp router-id 44.62.77.1
+ bgp log-neighbor-changes
+ neighbor 44.62.77.2 remote-as 64496
+ !
+ address-family ipv4
+  network 0.0.0.0
+  network 12.96.0.0 mask 255.255.0.0
+  network 12.96.73.162
+  network 44.62.77.0 mask 255.255.255.252
+  network 139.128.0.0
+  network 139.128.9.181
+  network 176.51.52.0 mask 255.255.255.0
+  network 176.51.52.81
+  network 205.76.107.0
+  network 205.76.107.179
+  neighbor 44.62.77.2 activate
+ exit-address-family
+!
+ip forward-protocol nd
+!
+!
+no ip http server
+no ip http secure-server
+!
+!         
+!
+!
+control-plane
+!
+!
+line con 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+ stopbits 1
+line aux 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+ stopbits 1
+line vty 0 4
+ login
+!
+!
+end
+! ##
+
+! ## ISP2 Router:
+hostname Internet-ISP2
+!
+boot-start-marker
+boot-end-marker
+!
+!
+!
+no aaa new-model
+no ip icmp rate-limit unreachable
+ip cef
+!
+!
+!
+!
+!
+!
+no ip domain lookup
+no ipv6 cef
+!
+!
+multilink bundle-name authenticated
+!
+!
+!
+!
+!
+!
+!
+!
+!
+ip tcp synwait-time 5
+! 
+!
+!
+!
+!
+!
+!
+!
+!         
+!
+!
+!
+interface FastEthernet0/0
+ no ip address
+ shutdown
+ duplex full
+!
+interface Ethernet1/0
+ ip address 69.31.239.129 255.255.255.252
+ duplex full
+!
+interface Ethernet1/1
+ no ip address
+ shutdown
+ duplex full
+!
+interface Ethernet1/2
+ no ip address
+ shutdown
+ duplex full
+!
+interface Ethernet1/3
+ no ip address
+ shutdown
+ duplex full
+!
+interface Ethernet1/4
+ no ip address
+ shutdown
+ duplex full
+!
+interface Ethernet1/5
+ no ip address
+ shutdown
+ duplex full
+!
+interface Ethernet1/6
+ no ip address
+ shutdown
+ duplex full
+!
+interface Ethernet1/7
+ no ip address
+ shutdown
+ duplex full
+!
+ip forward-protocol nd
+!
+!
+no ip http server
+no ip http secure-server
+!
+!
+!
+!
+control-plane
+!
+!
+line con 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+ stopbits 1
+line aux 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+ stopbits 1
+line vty 0 4
+ login
+!
+!
+end
+!
+! ##
