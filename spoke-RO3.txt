@@ -36,7 +36,32 @@ interface Tunnel0
  no ip mroute-cache
  delay 1000
  ip ospf network broadcast
+ ip ospf priority 0
  tunnel source FastEthernet0/0
+ tunnel mode gre multipoint
+ tunnel key 0
+ tunnel protection ipsec profile DMVPM-ipsec-pol
+ no shut
+exit
+
+interface Tunnel1
+ description Point-to-Multipoint for Remote Offices
+ ip address 172.16.5.4 255.255.255.0
+ no ip redirects
+ ip mtu 1400
+ ip nhrp authentication nexT-h06
+ ip nhrp map 172.16.5.1 69.31.239.130
+ ip nhrp map multicast 69.31.239.130
+ ip nhrp network-id 1
+ ip nhrp holdtime 300
+ ip nhrp nhs 172.16.5.1
+ no ip route-cache cef
+ no ip route-cache
+ ip ospf network broadcast
+ ip ospf priority 0
+ no ip mroute-cache
+ delay 1000
+ tunnel source Ethernet1/0
  tunnel mode gre multipoint
  tunnel key 0
  tunnel protection ipsec profile DMVPM-ipsec-pol
@@ -45,7 +70,7 @@ exit
 
 ! ### Configure WAN interface:
 int fa0/0
- description RO3-WAN-to-Cloud
+ description ISP1-WAN
  ip address 169.202.22.190 255.255.255.252
  ip access-group 100 in
  no ip mroute-cache
@@ -54,15 +79,44 @@ int fa0/0
  no shut
 exit
 
-ip route 0.0.0.0 0.0.0.0 169.202.22.189
+int e1/0
+ desc ISP2-WAN
+ ip add 170.202.22.190 255.255.255.252
+ ip access-group 100 in
+ no ip mroute-cache
+ duplex full
+exit
+
+ip route 44.62.77.2 255.255.255.255 169.202.22.189
+ip route 69.31.239.130 255.255.255.255 170.202.22.189
 
 ! ### LAN segment
-int fa0/1
+int e1/1
  ip address 172.16.3.1 255.255.255.0
  ip helper-address 10.1.1.15
- no keepalives
+ no keepalive
  ! ### keeps the interface up (for some IOS versions) since this is a LAB env
+ no shut
+exit
 
+! ### OSPF config for DMVPN and HQ LAN connectivity
 router ospf 1
+ area 1 nssa
  network 172.16.0.0 0.0.255.255 area 1
- 
+!
+
+! ### BGP config for WAN routes
+router bgp 62502
+ bgp router-id 169.202.22.190
+ bgp log-neighbor-changes
+ neighbor 169.202.22.189 remote-as 64497
+ neighbor 170.202.22.189 remote-as 62497
+ address-family ipv4
+  neighbor 169.202.22.189 activate
+  neighbor 169.202.22.190 activate
+  exit-address-family
+exit
+!
+
+end
+wr mem

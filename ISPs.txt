@@ -1,252 +1,154 @@
-! ### Simulated ISP routers
+! ### Simulated Service Provider routers
 ! Both routers are 7k with 1 PA-8E slot
 ! Config for ISP1:
 
-hostname Internet-ISP1
 !
-boot-start-marker
-boot-end-marker
-!
-!
-!
-no aaa new-model
-no ip icmp rate-limit unreachable
-ip cef
-!
-!
-!
-!
-!
-!
-no ip domain lookup
-no ipv6 cef
-!
-!
-multilink bundle-name authenticated
-!
-!
-!
-!
-!
-!
-!
-!
-!
-ip tcp synwait-time 5
-! 
-!
-!
-!
-!
-!
-!
-!
-!         
-!
-!
-!
-interface FastEthernet0/0
- no ip address
- shutdown
- duplex full
-!
-interface Ethernet1/0
+interface fa0/0
+ description to dmzRtr1
  ip address 44.62.77.1 255.255.255.252
  duplex full
+ no shut
 !
-interface Ethernet1/1
- no ip address
- shutdown
- duplex full
-!
-interface Ethernet1/2
- no ip address
- shutdown
- duplex full
-!
-interface Ethernet1/3
+
+interface Ethernet2/1
+ description RO1
  ip address 196.116.41.141 255.255.255.252
  duplex full
+ no shut
 !
-interface Ethernet1/4
+interface Ethernet2/2
+ description RO2
  ip address 131.155.232.33 255.255.255.252
  duplex full
+ no shut
 !
-interface Ethernet1/5
+interface Ethernet2/3
+ description RO3
  ip address 169.202.22.189 255.255.255.252
  duplex full
+ no shut
 !
-interface Ethernet1/6
+interface Ethernet2/4
+ description RO4
  ip address 155.63.14.177 255.255.255.252
  duplex full
+ no shut
 !
-interface Ethernet1/7
- no ip address
- shutdown
+
+int eth2/0
+ description to ISP2
+ ip address 133.16.148.1 255.255.255.252
  duplex full
-!
+ no shut
+
+! ### Simulate some BGP routes to exchange with peers
+
 router bgp 64497
  bgp router-id 44.62.77.1
  bgp log-neighbor-changes
  neighbor 44.62.77.2 remote-as 64496
+ neighbor 133.16.148.2 remote-as 62497
+ neighbor 196.116.41.142 remote-as 62500
+ neighbor 131.155.232.34 remote-as 62501
+ neighbor 169.202.22.190 remote-as 62502
+ neighbor 155.63.14.178 remote-as 62503
  !
- address-family ipv4
-  network 0.0.0.0
-  network 12.96.0.0 mask 255.255.0.0
-  network 12.96.73.162
-  network 44.62.77.0 mask 255.255.255.252
-  network 139.128.0.0
-  network 139.128.9.181
-  network 176.51.52.0 mask 255.255.255.0
-  network 176.51.52.81
-  network 205.76.107.0
-  network 205.76.107.179
-  neighbor 44.62.77.2 activate
- exit-address-family
-!
-ip forward-protocol nd
-!
-!
-no ip http server
-no ip http secure-server
-!
-!         
-!
-!
-control-plane
-!
-!
-line con 0
- exec-timeout 0 0
- privilege level 15
- logging synchronous
- stopbits 1
-line aux 0
- exec-timeout 0 0
- privilege level 15
- logging synchronous
- stopbits 1
-line vty 0 4
- login
-!
-!
-end
-! ##
 
-! ## ISP2 Router:
-hostname Internet-ISP2
+ network 12.96.0.0 mask 255.255.0.0
+ network 44.62.77.0 mask 255.255.255.252
+ network 139.128.0.0 mask 255.255.0.0
+ network 139.128.9.181 mask 255.255.255.255
+ network 176.51.52.0 mask 255.255.255.0
+ network 205.76.107.0 mask 255.255.255.0
 !
-boot-start-marker
-boot-end-marker
+
+ address-family ipv4
+  neighbor 44.62.77.2 activate
+  neighbor 133.16.148.2 activate
+  neighbor 196.116.41.142 activate
+  neighbor 131.155.232.34 activate
+  neighbor 169.202.22.190 activate
+  neighbor 155.63.14.178 activate
+ exit-address-family
+exit
 !
+
+end
+wr mem
 !
-!
-no aaa new-model
-no ip icmp rate-limit unreachable
-ip cef
-!
-!
-!
-!
-!
-!
-no ip domain lookup
-no ipv6 cef
-!
-!
-multilink bundle-name authenticated
-!
-!
-!
-!
-!
-!
-!
-!
-!
-ip tcp synwait-time 5
-! 
-!
-!
-!
-!
-!
-!
-!
-!         
-!
-!
+
+! ### ISP2 Router:
+
 !
 interface FastEthernet0/0
- no ip address
- shutdown
- duplex full
-!
-interface Ethernet1/0
+ desc to dmzRtr2
  ip address 69.31.239.129 255.255.255.252
+ no shutdown
  duplex full
 !
-interface Ethernet1/1
- no ip address
- shutdown
+interface Ethernet2/0
+ desc to ISP1
+ ip address 133.16.148.2 255.255.255.252
+ no shut
  duplex full
 !
-interface Ethernet1/2
- no ip address
- shutdown
+interface Ethernet2/1
+ desc to RO1
+ ip address 171.56.80.5 255.255.255.252
+ no shutdown
  duplex full
 !
-interface Ethernet1/3
- no ip address
- shutdown
+interface Ethernet2/2
+ desc to RO2
+ ip address 132.155.232.34 255.255.255.252
+ no shutdown
  duplex full
 !
-interface Ethernet1/4
- no ip address
- shutdown
+interface Ethernet2/3
+ desc to RO3
+ ip address 170.202.22.189 255.255.255.252
+ no shutdown
  duplex full
 !
-interface Ethernet1/5
- no ip address
- shutdown
+interface Ethernet2/4
+ desc to RO4
+ ip address 156.63.14.177 255.255.255.252
+ no shutdown
  duplex full
 !
-interface Ethernet1/6
- no ip address
- shutdown
- duplex full
+
+! ### BGP config to simulate Provider Router
+router bgp 62497
+ bgp router-id 69.31.239.129
+ bgp log-neighbor-changes
+ neighbor 69.31.239.130 remote-as 62496
+ neighbor 133.16.148.1 remote-as 64497
+ neighbor 171.56.80.6 remote-as 62500
+ neighbor 132.155.232.33 remote-as 62501
+ neighbor 170.202.22.190 remote-as 62502
+ neighbor 156.63.14.178 remote-as 62503
+ !
+
+ network 69.31.239.128 mask 255.255.255.252
+ network 133.16.148.0 mask 255.255.255.252
+ network 171.56.80.4 mask 255.255.255.252
+ network 132.155.232.32 mask 255.255.255.252
+ network 170.202.22.188 mask 255.255.255.252
+ network 156.63.14.176 mask 255.255.255.252
 !
-interface Ethernet1/7
- no ip address
- shutdown
- duplex full
+
+address-family ipv4
+ neighbor 69.31.239.130 activate
+ neighbor 133.16.148.2 activate
+ neighbor 171.56.80.6 activate
+ neighbor 132.155.232.33 activate
+ neighbor 170.202.22.190 activate
+ neighbor 156.63.14.178 activate
+exit-address-family
+exit
 !
-ip forward-protocol nd
-!
-!
-no ip http server
-no ip http secure-server
-!
-!
-!
-!
-control-plane
-!
-!
-line con 0
- exec-timeout 0 0
- privilege level 15
- logging synchronous
- stopbits 1
-line aux 0
- exec-timeout 0 0
- privilege level 15
- logging synchronous
- stopbits 1
-line vty 0 4
- login
-!
-!
-end
+
 !
 ! ##
+end
+wr mem
