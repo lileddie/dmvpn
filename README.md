@@ -20,17 +20,17 @@ You can fully configure the Hubs, Spokes, and ISPs using a simulator like GNS3 o
 
 The physical network diagram has 2 Internet Routers at the CO, each using their own ISP for vendor redundancy.  ROs each have one Internet Router with connections to 2 ISPs for redundancy.
 
-![alt networkDiagram](https://github.com/lileddie/dmvpn/blob/tschmid-complete-DC/images/DMVN-diagram.jpeg)
+![alt networkDiagram](https://raw.githubusercontent.com/lileddie/dmvpn/master/images/DMVN-diagram.jpeg)
 
 ## Routing Tables
 
 The OC routers should have a route to each remote office and the LAN at each site.
 
-
+![alt dmvpnHub](https://raw.githubusercontent.com/lileddie/dmvpn/master/images/HQ-Hub.png)
 
 The RO routers should have a route back to the OC, and to each RO.
 
-
+![alt dmvpnSpoke](https://raw.githubusercontent.com/lileddie/dmvpn/master/images/RemoteOffice.png)
 
 ### Spoke to Spoke Connectivity
 
@@ -58,7 +58,7 @@ RO1#
 
 Utilizing the same test as above, capture the traffic to ensure all traffic on link is encrypted.
 
-![alt packetCapture](https://github.com/lileddie/dmvpn/blob/tschmid-complete-DC/images/wireshark.png)
+![alt packetCapture](https://raw.githubusercontent.com/lileddie/dmvpn/master/images/wireshark.png)
 
 ## Authors
 
