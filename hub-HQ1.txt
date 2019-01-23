@@ -2,9 +2,9 @@
 
 ! ### Internet Security Assoc. and key policy for Phase 1 negotiation:
 crypto isakmp policy 10
-hash md5
-authentication pre-share
-  exit
+ hash md5
+ authentication pre-share
+exit
 
 ! ### Pre-shared keys for all Remote Office locations:
 crypto isakmp key 0 DMVPN-s3cuRe-l@b address 0.0.0.0 0.0.0.0
@@ -16,31 +16,32 @@ exit
 
 ! ### IPsec profile for GRE tunnel
 crypto ipsec profile DMVPM-ipsec-pol
-set security-association lifetime seconds 120
-set transform-set DMVPN-enc-pol
+ set security-association lifetime seconds 120
+ set transform-set DMVPN-enc-pol
 exit
 
 ! ### Create Tunnel Interface:
 interface Tunnel0
-description Point-to-Multipoint for Remote Offices
-ip address 172.16.0.1 255.255.255.0
-no ip redirects
-ip mtu 1400
-ip nhrp authentication nexT-h06
-ip nhrp map multicast dynamic
-ip nhrp network-id 1
-ip nhrp holdtime 300
-no ip route-cache
-no ip mroute-cache
-delay 1000
-ip ospf network broadcast
-tunnel source FastEthernet0/0
-tunnel mode gre multipoint
-tunnel key 0
-tunnel protection ipsec profile DMVPM-ipsec-pol
+ description Point-to-Multipoint for Remote Offices
+ ip address 172.16.0.1 255.255.255.0
+ no ip redirects
+ ip mtu 1400
+ ip nhrp authentication nexT-h06
+ ip nhrp map multicast dynamic
+ ip nhrp network-id 1
+ ip nhrp holdtime 300
+ no ip route-cache
+ no ip mroute-cache
+ delay 1000
+ ip ospf network broadcast
+ tunnel source e1/0
+ tunnel mode gre multipoint
+ tunnel key 0
+ tunnel protection ipsec profile DMVPM-ipsec-pol
+ no shut
 exit
 
-! ### Disallow non-FW or DMVPN traffic:
+! ### Disallow non-FW-Pxy or DMVPN traffic:
 access-list 100 permit udp any host 44.62.77.2 eq 500
 access-list 100 permit esp any host 44.62.77.2
 access-list 100 permit gre any host 44.62.77.2
@@ -52,20 +53,32 @@ access-list 100 permit tcp host 44.62.77.1 host 44.62.77.2 eq bgp
 access-list 100 deny ip any any
 
 ! ### Configure WAN interface:
-interface FastEthernet0/0
+interface e1/0
  description HQ1-WAN-to-ISP1
  ip address 44.62.77.2 255.255.255.252
  ip access-group 100 in
  no ip mroute-cache
- duplex auto
- speed auto
- exit
+ duplex full
+ speed 100
+ no shut
+exit
+!
+
+! ### Configure LAN route for summarization
+ ! ### in production this would be  trunk link to L3 switch
+int e1/1
+ description to LAN
+ ip address 10.255.1.1 255.255.255.0
+ no shut
+exit
 !
 
 ! ### Add HQ LAN to area 0 and Remote sites to area 1
 router ospf 1
+ area 1 nssa
  network 172.16.0.0 0.0.255.255 area 1
  network 10.0.0.0 0.255.255.255 area 0
+ summary-address 10.0.0.0 255.0.0.0
 exit
 
 ! ### Use BGP for routing to the Internet
@@ -73,6 +86,7 @@ router bgp 64496
  bgp router-id 44.62.77.2
  bgp log-neighbor-changes
  neighbor 44.62.77.1 remote-as 64497
+ network 44.62.77.0 mask 255.255.255.224
  !
  address-family ipv4
   neighbor 44.62.77.1 activate

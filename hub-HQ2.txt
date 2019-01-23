@@ -34,7 +34,7 @@ interface Tunnel0
  no ip mroute-cache
  delay 1000
  ip ospf network broadcast
- tunnel source FastEthernet0/0
+ tunnel source Ethernet1/0
  tunnel mode gre multipoint
  tunnel key 0
  tunnel protection ipsec profile DMVPM-ipsec-pol
@@ -53,28 +53,38 @@ access-list 100 permit tcp host 69.31.239.129 host 69.31.239.130 eq bgp
 access-list 100 deny ip any any
 
 ! ### Configure WAN interface:
-interface FastEthernet0/0
+interface Ethernet1/0
  description HQ2-WAN-to-ISP2
  ip address 69.31.239.130 255.255.255.252
  ip access-group 100 in
  no ip mroute-cache
- duplex auto
- speed auto
+ duplex full
+ no shut
+exit
+!
+
+! ### Configure LAN route for summarization
+ ! ### in production this would be  trunk link to L3 switch
+int e1/1
+ description to LAN
+ ip address 10.255.0.1 255.255.255.0
  no shut
 exit
 !
 
 ! ### Add HQ LAN to area 0 and Remote sites to area 1
 router ospf 1
+ area 1 nssa
  network 172.16.0.0 0.0.255.255 area 1
  network 10.0.0.0 0.255.255.255 area 0
+ summary-address 10.0.0.0 255.0.0.0
 exit
 
 ! ### Use BGP for routing to the Internet
-router bgp 65496
+router bgp 62496
  bgp router-id 69.31.239.130
  bgp log-neighbor-changes
- neighbor 69.31.239.129 remote-as 65497
+ neighbor 69.31.239.129 remote-as 62497
  !
  address-family ipv4
   neighbor 69.31.239.129 activate
