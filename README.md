@@ -1,10 +1,10 @@
 # DMVPN config using OSPF and BGP
 
-Example Hub and Spoke DMVPN config using OSPF and BGP
+Example Hub and Spoke DMVPN between Cisco Routers using OSPF and BGP
 
 ## Project Scope
 
-The scope of this project is to create a Central Office (CO) with 4 Remote Offices (RO).  The ROs should be able to reach the COs LAN through redundant paths.  The ROs should be on their own OSPF Network and receive a summary route from the CO. The CO and all ROs should use BGP for public routes.
+The scope of this project is to create a Central Office (CO) with 4 Remote Offices (RO).  The ROs should be able to reach the CO LAN through redundant paths.  The DMVPN should be on a separate OSPF area and receive a summary route of the CO LAN. The CO and all ROs should use BGP for public routes.
 
 Communication between LANs should be routed through an encrypted tunnel.
 
