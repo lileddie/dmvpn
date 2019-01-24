@@ -24,7 +24,7 @@ The physical network diagram has 2 Internet Routers at the CO, each using their 
 
 ## Routing Tables
 
-The OC routers should have a route to each remote office and the LAN at each site.
+The CO routers should have a route to each remote office and the LAN at each site.
 
 ![alt dmvpnHub](https://raw.githubusercontent.com/lileddie/dmvpn/master/images/HQ-Hub.png)
 
