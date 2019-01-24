@@ -29,10 +29,8 @@ interface Tunnel0
  ip nhrp authentication nexT-h06
  ip nhrp map multicast dynamic
  ip nhrp network-id 1
- ip nhrp holdtime 300
  no ip route-cache
  no ip mroute-cache
- delay 1000
  ip ospf network broadcast
  tunnel source e1/0
  tunnel mode gre multipoint

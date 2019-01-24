@@ -34,7 +34,6 @@ interface Tunnel0
  ip nhrp holdtime 300
  no ip route-cache
  no ip mroute-cache
- delay 1000
  ip ospf network broadcast
  ip ospf priority 0
  tunnel source fa0/0
@@ -58,7 +57,6 @@ interface Tunnel1
  ip nhrp holdtime 300
  no ip route-cache
  no ip mroute-cache
- delay 1000
  ip ospf network broadcast
  ip ospf priority 0
  tunnel source Ethernet1/0
